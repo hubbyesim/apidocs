@@ -1,0 +1,410 @@
+openapi: 3.0.1
+info:
+  title: Hubby API
+  description: API for managing travelers and packages.
+  version: 1.0.0
+servers:
+  - url: https://api-acc.hubby.dev
+    description: Acceptance server
+  - url: https://api.hubby.dev
+    description: Production server
+paths:
+  /traveler:
+    post:
+      tags:
+      - traveler
+      summary: Create a new traveler
+      description: Endpoint to create a new traveler.
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                arrivalDate:
+                  type: string
+                  format: date
+                country:
+                  type: string
+                package:
+                  type: string
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                title:
+                  type: string
+                pax:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                returnDate:
+                  type: string
+                  format: date
+                flightNumber:
+                  type: string
+                gender:
+                  type: string
+                dateOfBirth:
+                  type: string
+                  format: date
+                phone:
+                  type: string
+                budget:
+                  type: number
+                fullName:
+                  type: string
+                data:
+                  type: object
+                  additionalProperties: true
+              required:
+                - arrivalDate
+                - country
+                - firstName
+                - lastName
+                - email
+                - returnDate
+              oneOf:
+                - required:
+                    - budget
+                - required:
+                    - package
+            examples:
+              full:
+                summary: Full payload
+                value:
+                  arrivalDate: '2024-03-31'
+                  country: PHL
+                  package: '340596'
+                  firstName: Hubby
+                  lastName: Van Dijk
+                  title: mr.
+                  pax: '1'
+                  email: test@hubbyesim.com
+                  returnDate: '2024-06-01'
+                  flightNumber: KL1234
+                  gender: M
+                  dateOfBirth: '1999-12-31'
+                  data:
+                    manual: true
+              budget:
+                summary: Budget mode payload
+                value:
+                  arrivalDate: '2024-03-31'
+                  country: GRC
+                  phone: '+3112345678'
+                  budget: 10
+                  firstName: Hubby
+                  lastName: Van Dijk
+                  fullName: Hubby Van Dijk
+                  title: mr.
+                  pax: '4'
+                  email: vandijk@hubbyesim.com
+                  returnDate: '2024-12-12'
+                  flightNumber: KL1234
+                  gender: M
+                  dateOfBirth: '1988-02-29'
+                  data:
+                    campaignId: otb-123
+              minimal:
+                summary: Minimal payload
+                value:
+                  arrivalDate: '2024-03-31'
+                  country: GRC
+                  budget: 10
+                  firstName: Hubby
+                  lastName: Van Dijk
+                  fullName: Hubby Van Dijk
+                  returnDate: '2024-12-12'
+        required: true
+      responses:
+        '200':
+          description: Traveler successfully created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      promo:
+                        type: string
+                      package:
+                        type: string
+                  message:
+                    type: string
+              example:
+                success: true
+                data:
+                  id: DzGiKUZ90zl3o552XqAb
+                  promo: u6y62a6ovk
+                  package: '340596'
+                message: Traveler created successfully!
+        '400':
+          description: Traveler not created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+    get:
+      summary: Get traveler information
+      description: Retrieve traveler details using the booking ID.
+      tags:
+      - traveler
+      parameters:
+        - name: bookingId
+          in: query
+          required: true
+          description: The booking ID of the traveler.
+          schema:
+            type: string
+            example: 123xyz
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Traveler found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      arrivalDate:
+                        type: string
+                        format: date-time
+                        example: '2024-03-31T00:00:00.000Z'
+                      country:
+                        type: string
+                        example: PHL
+                      package:
+                        type: string
+                        example: '340596'
+                      firstName:
+                        type: string
+                        example: Hubby
+                      lastName:
+                        type: string
+                        example: Van Dijk
+                      title:
+                        type: string
+                        example: mr.
+                      pax:
+                        type: integer
+                        example: 1
+                      email:
+                        type: string
+                        example: test@hubbyesim.com
+                      returnDate:
+                        type: string
+                        format: date-time
+                        example: '2024-06-01T00:00:00.000Z'
+                      flightNumber:
+                        type: string
+                        example: KL1234
+                      gender:
+                        type: string
+                        example: M
+                      dateOfBirth:
+                        type: string
+                        format: date-time
+                        example: '1999-12-31T00:00:00.000Z'
+                      data:
+                        type: object
+                        properties:
+                          manual:
+                            type: boolean
+                            example: true
+                      shouldMessage:
+                        type: boolean
+                        example: true
+                      bookingId:
+                        type: string
+                        example: gw8d3ddjvm
+                      partner:
+                        type: string
+                        example: 5Y47UlrnXYmt0gPCIxoD
+                      createdAt:
+                        type: string
+                        format: date-time
+                        example: '2024-05-17T10:34:03.510Z'
+                      promo:
+                        type: string
+                        example: h9lkn2cq7f
+                      id:
+                        type: string
+                        example: XO0Q95OS1Dy5QCq3o8GD
+                  message:
+                    type: string
+                    example: Traveler found
+        '404':
+          description: No matching travelers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: No matching travelers
+        '500':
+          description: Server error due to missing parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  data:
+                    type: object
+                    example: {}
+                  error:
+                    type: string
+                    example: Missing parameters
+    delete:
+      tags:
+      - traveler
+      summary: Delete new traveler
+      description: Endpoint to remove a traveler, for example when a booking is cancelled
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: The ID of the traveler, you get it when creating a traveler
+          schema:
+            type: string
+            example: 123xyz
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '204':
+          description: Traveler deleted
+        '404':
+          description: Traveler not found or unable to remove
+  /packages:
+    get:
+      tags:
+      - packages
+      summary: Get available packages
+      description: Retrieve a list of available packages.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: country
+          in: query
+          required: false
+          schema:
+            type: string
+            example: GRC
+          description: ISO3 country code to filter the list of packages.
+      responses:
+        '200':
+          description: A list of packages
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          label:
+                            type: string
+                          bytes:
+                            type: integer
+                          country:
+                            type: string
+                          price:
+                            type: number
+                          customerPrice:
+                            type: number
+              example:
+                packages:
+                  FRA:
+                    - id: '339801'
+                      label: 1 GB
+                      bytes: 1000000000
+                      country: FRA
+                      price: 3.8
+                      customerPrice: 4.5
+                    - id: '339807'
+                      label: 5 GB
+                      bytes: 5000000000
+                      country: FRA
+                      price: 10.4
+                      customerPrice: 12.25
+                    - id: '339810'
+                      label: 10 GB
+                      bytes: 10000000000
+                      country: FRA
+                      price: 17.85
+                      customerPrice: 21
+                    - id: '339813'
+                      label: 20 GB
+                      bytes: 20000000000
+                      country: FRA
+                      price: 30.95
+                      customerPrice: 36.4
+                  GRC:
+                    - id: '339816'
+                      label: 1 GB
+                      bytes: 1000000000
+                      country: GRC
+                      price: 3.8
+                      customerPrice: 4.5
+                    - id: '339822'
+                      label: 5 GB
+                      bytes: 5000000000
+                      country: GRC
+                      price: 14.1
+                      customerPrice: 16.6
+                    - id: '339825'
+                      label: 10 GB
+                      bytes: 10000000000
+                      country: GRC
+                      price: 24.2
+                      customerPrice: 28.5
+                    - id: '339828'
+                      label: 20 GB
+                      bytes: 20000000000
+                      country: GRC
+                      price: 42
+                      customerPrice: 49.4
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Fixed API token for authentication
