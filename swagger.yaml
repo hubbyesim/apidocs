@@ -1,8 +1,25 @@
 openapi: 3.0.1
 info:
   title: Hubby API
-  description: API for managing travelers and packages.
-  version: 1.0.0
+  description: |
+    Welcome to Hubby's eSIM API documentation. This API allows you to interact with our eSIM service by providing endpoints to fetch available eSIM packages and manage traveler information. The aim is to provide a simple and straightforward way to integrate esim functionality with your business. Please note the included examples, to see the diffrent ways to integrate. Below are the primary functionalities offered by our API:
+    
+    ## Endpoints Overview
+    
+    ### eSIM Packages
+    - **Fetch eSIM Packages**: Retrieve a list of available eSIM packages.
+    
+    ### Travelers
+    Creating a traveler is essential to our system. We support many ways of integrating through this api. You can create a traveler with a package, a budget or just the minimal required fields. But please also note an email adress is not required when opting to communicate the generated promo code yourself.
+    - **Create Traveler**: Add a new traveler to the system.
+      - **Full Payload**: Create a traveler with all available fields.
+      - **Budget Mode Payload**: Create a traveler with a budget instead of a package.
+      - **Minimal Payload**: Create a traveler with the minimum required fields. 
+    - **Get Traveler**: Retrieve details of an existing traveler.
+    - **Remove Traveler**: Delete a traveler from the system.
+    
+    Each endpoint follows RESTful principles and returns JSON formatted responses for easy integration. Detailed information on the usage of each endpoint, including request and response formats, can be found in the respective sections below.
+  version: 1.1.15
 servers:
   - url: https://api-acc.hubby.dev
     description: Acceptance server
@@ -17,7 +34,7 @@ paths:
       summary: Create a new traveler
       description: Endpoint to create a new traveler.
       security:
-        - ApiKeyAuth: []
+        - bearerAuth: []
       requestBody:
         content:
           application/json:
@@ -89,13 +106,14 @@ paths:
                   flightNumber: KL1234
                   gender: M
                   dateOfBirth: '1999-12-31'
+                  shouldMessage: false
                   data:
                     manual: true
               budget:
                 summary: Budget mode payload
                 value:
                   arrivalDate: '2024-03-31'
-                  country: GRC
+                  country: PHL
                   phone: '+3112345678'
                   budget: 10
                   firstName: Hubby
@@ -114,7 +132,7 @@ paths:
                 summary: Minimal payload
                 value:
                   arrivalDate: '2024-03-31'
-                  country: GRC
+                  country: PHL
                   budget: 10
                   firstName: Hubby
                   lastName: Van Dijk
@@ -172,7 +190,7 @@ paths:
             type: string
             example: 123xyz
       security:
-        - ApiKeyAuth: []
+        - bearerAuth: []
       responses:
         '200':
           description: Traveler found
@@ -233,7 +251,7 @@ paths:
             type: string
             example: 123xyz
       security:
-        - ApiKeyAuth: []
+        - bearerAuth: []
       responses:
         '204':
           description: Traveler deleted
@@ -246,14 +264,14 @@ paths:
       summary: Get available packages
       description: Retrieve a list of available packages.
       security:
-        - ApiKeyAuth: []
+        - bearerAuth: []
       parameters:
         - name: country
           in: query
           required: false
           schema:
             type: string
-            example: GRC
+            example: PHL
           description: ISO3 country code to filter the list of packages.
       responses:
         '200':
@@ -300,29 +318,29 @@ paths:
                       country: FRA
                       price: 30.95
                       customerPrice: 36.4
-                  GRC:
+                  PHL:
                     - id: '339816'
                       label: 1 GB
                       bytes: 1000000000
-                      country: GRC
+                      country: PHL
                       price: 3.8
                       customerPrice: 4.5
                     - id: '339822'
                       label: 5 GB
                       bytes: 5000000000
-                      country: GRC
+                      country: PHL
                       price: 14.1
                       customerPrice: 16.6
                     - id: '339825'
                       label: 10 GB
                       bytes: 10000000000
-                      country: GRC
+                      country: PHL
                       price: 24.2
                       customerPrice: 28.5
                     - id: '339828'
                       label: 20 GB
                       bytes: 20000000000
-                      country: GRC
+                      country: PHL
                       price: 42
                       customerPrice: 49.4
 components:
@@ -419,8 +437,7 @@ components:
           type: string
           example: "0028QRS1h2KnXQMuU1RC"
   securitySchemes:
-    ApiKeyAuth:
-      type: apiKey
-      in: header
-      name: Authorization
-      description: Fixed API token for authentication
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
