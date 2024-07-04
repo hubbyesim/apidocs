@@ -13,7 +13,7 @@ info:
     Creating a traveler is essential to our system. We support many ways of integrating through this api. You can create a traveler with a package, a budget or just the minimal required fields. But please also note an email adress is not required when opting to communicate the generated promo code yourself.
     - **Create Traveler**: Add a new traveler to the system.
       - **Full Payload**: Create a traveler with all available fields.
-      - **Budget Mode Payload**: Create a traveler with a budget instead of a package.
+      - **Strategy Mode Payload**: Create a traveler a traveler based on the implemented strategy. (We configure a strategy during the onboarding process. e.g. everyone automatically gets 2GB data in the country they are traveling to.)
       - **Minimal Payload**: Create a traveler with the minimum required fields. 
     - **Get Traveler**: Retrieve details of an existing traveler.
     - **Remove Traveler**: Delete a traveler from the system.
@@ -85,11 +85,6 @@ paths:
                 - lastName
                 - email
                 - returnDate
-              oneOf:
-                - required:
-                    - budget
-                - required:
-                    - package
             examples:
               full:
                 summary: Full payload
@@ -109,13 +104,12 @@ paths:
                   shouldMessage: false
                   data:
                     manual: true
-              budget:
-                summary: Budget mode payload
+              strategy:
+                summary: Strategy mode payload 
                 value:
                   arrivalDate: '2024-03-31'
                   country: PHL
                   phone: '+3112345678'
-                  budget: 10
                   firstName: Hubby
                   lastName: Van Dijk
                   fullName: Hubby Van Dijk
@@ -129,11 +123,10 @@ paths:
                   data:
                     campaignId: otb-123
               minimal:
-                summary: Minimal payload
+                summary: Minimal payload (uses the strategy mode for package selection)
                 value:
                   arrivalDate: '2024-03-31'
                   country: PHL
-                  budget: 10
                   firstName: Hubby
                   lastName: Van Dijk
                   fullName: Hubby Van Dijk
