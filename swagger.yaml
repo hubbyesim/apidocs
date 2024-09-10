@@ -1,25 +1,8 @@
 openapi: 3.0.1
 info:
   title: Hubby API
-  description: |
-    Welcome to Hubby's eSIM API documentation. This API allows you to interact with our eSIM service by providing endpoints to fetch available eSIM packages and manage traveler information. The aim is to provide a simple and straightforward way to integrate esim functionality with your business. Please note the included examples, to see the diffrent ways to integrate. Below are the primary functionalities offered by our API:
-    
-    ## Endpoints Overview
-    
-    ### eSIM Packages
-    - **Fetch eSIM Packages**: Retrieve a list of available eSIM packages.
-    
-    ### Travelers
-    Creating a traveler is essential to our system. We support many ways of integrating through this api. You can create a traveler with a package, a budget or just the minimal required fields. But please also note an email adress is not required when opting to communicate the generated promo code yourself.
-    - **Create Traveler**: Add a new traveler to the system.
-      - **Full Payload**: Create a traveler with all available fields.
-      - **Strategy Mode Payload**: Create a traveler a traveler based on the implemented strategy. (We configure a strategy during the onboarding process. e.g. everyone automatically gets 2GB data in the country they are traveling to.)
-      - **Minimal Payload**: Create a traveler with the minimum required fields. 
-    - **Get Traveler**: Retrieve details of an existing traveler.
-    - **Remove Traveler**: Delete a traveler from the system.
-    
-    Each endpoint follows RESTful principles and returns JSON formatted responses for easy integration. Detailed information on the usage of each endpoint, including request and response formats, can be found in the respective sections below.
-  version: 1.1.15
+  description: API for managing travelers and packages.
+  version: 1.0.0
 servers:
   - url: https://api-acc.hubby.dev
     description: Acceptance server
@@ -27,14 +10,65 @@ servers:
     description: Production server
 
 paths:
+  /api/booking/{id}:
+    get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Booking
+      summary: Fetch a booking
+      description: Fetches a specific booking by its ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the booking to retrieve.
+      responses:
+        "200":
+          description: Successfully fetched the booking
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookingResponse"
+        "404":
+          description: Booking not found
+        "500":
+          description: Server error
+  /api/booking:
+    post:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Booking
+      summary: Create a booking
+      description: Creates a booking with the specified details.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Booking"
+      responses:
+        "200":
+          description: Booking created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookingResponse"
+        "400":
+          description: Invalid request parameters
+        "500":
+          description: Server error
   /traveler:
     post:
       tags:
-      - traveler
+        - traveler
       summary: Create a new traveler
       description: Endpoint to create a new traveler.
       security:
-        - bearerAuth: []
+        - ApiKeyAuth: []
       requestBody:
         content:
           application/json:
@@ -85,55 +119,61 @@ paths:
                 - lastName
                 - email
                 - returnDate
+              oneOf:
+                - required:
+                    - budget
+                - required:
+                    - package
             examples:
               full:
                 summary: Full payload
                 value:
-                  arrivalDate: '2024-03-31'
+                  arrivalDate: "2024-03-31"
                   country: PHL
-                  package: '340596'
+                  package: "340596"
                   firstName: Hubby
                   lastName: Van Dijk
                   title: mr.
-                  pax: '1'
+                  pax: "1"
                   email: test@hubbyesim.com
-                  returnDate: '2024-06-01'
+                  returnDate: "2024-06-01"
                   flightNumber: KL1234
                   gender: M
-                  dateOfBirth: '1999-12-31'
-                  shouldMessage: false
+                  dateOfBirth: "1999-12-31"
                   data:
                     manual: true
-              strategy:
-                summary: Strategy mode payload 
+              budget:
+                summary: Budget mode payload
                 value:
-                  arrivalDate: '2024-03-31'
-                  country: PHL
-                  phone: '+3112345678'
+                  arrivalDate: "2024-03-31"
+                  country: GRC
+                  phone: "+3112345678"
+                  budget: 10
                   firstName: Hubby
                   lastName: Van Dijk
                   fullName: Hubby Van Dijk
                   title: mr.
-                  pax: '4'
+                  pax: "4"
                   email: vandijk@hubbyesim.com
-                  returnDate: '2024-12-12'
+                  returnDate: "2024-12-12"
                   flightNumber: KL1234
                   gender: M
-                  dateOfBirth: '1988-02-29'
+                  dateOfBirth: "1988-02-29"
                   data:
                     campaignId: otb-123
               minimal:
-                summary: Minimal payload (uses the strategy mode for package selection)
+                summary: Minimal payload
                 value:
-                  arrivalDate: '2024-03-31'
-                  country: PHL
+                  arrivalDate: "2024-03-31"
+                  country: GRC
+                  budget: 10
                   firstName: Hubby
                   lastName: Van Dijk
                   fullName: Hubby Van Dijk
-                  returnDate: '2024-12-12'
+                  returnDate: "2024-12-12"
         required: true
       responses:
-        '200':
+        "200":
           description: Traveler successfully created
           content:
             application/json:
@@ -151,8 +191,6 @@ paths:
                         type: string
                       package:
                         type: string
-                      bookingId:
-                        type: string
                   message:
                     type: string
               example:
@@ -160,9 +198,9 @@ paths:
                 data:
                   id: DzGiKUZ90zl3o552XqAb
                   promo: u6y62a6ovk
-                  package: '340596'
+                  package: "340596"
                 message: Traveler created successfully!
-        '400':
+        "400":
           description: Traveler not created
           content:
             application/json:
@@ -175,7 +213,7 @@ paths:
       summary: Get traveler information
       description: Retrieve traveler details using the booking ID.
       tags:
-      - traveler
+        - traveler
       parameters:
         - name: bookingId
           in: query
@@ -185,9 +223,9 @@ paths:
             type: string
             example: 123xyz
       security:
-        - bearerAuth: []
+        - ApiKeyAuth: []
       responses:
-        '200':
+        "200":
           description: Traveler found
           content:
             application/json:
@@ -199,11 +237,11 @@ paths:
                     example: true
                   data:
                     type: object
-                    $ref: '#/components/schemas/Traveler'
+                    $ref: "#/components/schemas/Traveler"
                   message:
                     type: string
                     example: Traveler found
-        '404':
+        "404":
           description: No matching travelers
           content:
             application/json:
@@ -216,7 +254,7 @@ paths:
                   message:
                     type: string
                     example: No matching travelers
-        '500':
+        "500":
           description: Server error due to missing parameters
           content:
             application/json:
@@ -234,7 +272,7 @@ paths:
                     example: Missing parameters
     delete:
       tags:
-      - traveler
+        - traveler
       summary: Delete a previously created traveler
       description: Endpoint to remove a traveler, for example when a booking is cancelled
       parameters:
@@ -246,30 +284,30 @@ paths:
             type: string
             example: 123xyz
       security:
-        - bearerAuth: []
+        - ApiKeyAuth: []
       responses:
-        '204':
+        "204":
           description: Traveler deleted
-        '404':
+        "404":
           description: Traveler not found or unable to remove
-  /packages:
+  /api/packages:
     get:
       tags:
-      - packages
+        - packages
       summary: Get available packages
       description: Retrieve a list of available packages.
       security:
-        - bearerAuth: []
+        - ApiKeyAuth: []
       parameters:
         - name: country
           in: query
           required: false
           schema:
             type: string
-            example: PHL
+            example: GRC
           description: ISO3 country code to filter the list of packages.
       responses:
-        '200':
+        "200":
           description: A list of packages
           content:
             application/json:
@@ -285,61 +323,314 @@ paths:
                     additionalProperties:
                       type: array
                       items:
-                         $ref: '#/components/schemas/Package'
+                        $ref: "#/components/schemas/Package"
               example:
                 packages:
                   FRA:
-                    - id: '339801'
+                    - id: "339801"
                       label: 1 GB
                       bytes: 1000000000
                       country: FRA
                       price: 3.8
                       customerPrice: 4.5
-                    - id: '339807'
+                    - id: "339807"
                       label: 5 GB
                       bytes: 5000000000
                       country: FRA
                       price: 10.4
                       customerPrice: 12.25
-                    - id: '339810'
+                    - id: "339810"
                       label: 10 GB
                       bytes: 10000000000
                       country: FRA
                       price: 17.85
                       customerPrice: 21
-                    - id: '339813'
+                    - id: "339813"
                       label: 20 GB
                       bytes: 20000000000
                       country: FRA
                       price: 30.95
                       customerPrice: 36.4
-                  PHL:
-                    - id: '339816'
+                  GRC:
+                    - id: "339816"
                       label: 1 GB
                       bytes: 1000000000
-                      country: PHL
+                      country: GRC
                       price: 3.8
                       customerPrice: 4.5
-                    - id: '339822'
+                    - id: "339822"
                       label: 5 GB
                       bytes: 5000000000
-                      country: PHL
+                      country: GRC
                       price: 14.1
                       customerPrice: 16.6
-                    - id: '339825'
+                    - id: "339825"
                       label: 10 GB
                       bytes: 10000000000
-                      country: PHL
+                      country: GRC
                       price: 24.2
                       customerPrice: 28.5
-                    - id: '339828'
+                    - id: "339828"
                       label: 20 GB
                       bytes: 20000000000
-                      country: PHL
+                      country: GRC
                       price: 42
                       customerPrice: 49.4
 components:
   schemas:
+    Booking:
+      type: object
+      required:
+        - departure_date
+        - return_date
+        - communication_options
+        - package_specifications
+      properties:
+        departure_date:
+          type: string
+          format: date-time
+          description: Departure date in ISO format
+          example: "2024-12-12"
+        email:
+          type: string
+          format: email
+          description: Email address of the booking contact
+          example: "example@hubbyesim.com"
+        phone:
+          type: string
+          description: Phone number with country code
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: First name of the passenger
+          example: "Hubby"
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Last name of the passenger
+          example: "Van Dijk"
+        full_name:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: Full name of the passenger
+          example: "Hubby Van Dijk"
+        title:
+          type: string
+          enum: ["mr.", "ms.", "mrs.", "miss", "dr.", "prof."]
+          description: Title of the passenger
+        pax:
+          type: integer
+          minimum: 1
+          description: Number of passengers
+          example: 12
+        return_date:
+          type: string
+          format: date-time
+          description: Return date in ISO format, must be after departure date
+          example: "2024-12-20"
+        gender:
+          type: string
+          enum: ["M", "F", "O"]
+          description: Gender of the passenger
+        date_of_birth:
+          type: string
+          format: date-time
+          description: Date of birth of the passenger, must be a past date
+        data:
+          type: object
+          description: Additional data associated with the booking
+        locale:
+          type: string
+          minLength: 2
+          maxLength: 5
+          description: Locale of the booking
+          example: "en-GB"
+        booking_id:
+          type: string
+          minLength: 3
+          description: ID of the booking
+        communication_options:
+          type: object
+          required:
+            - should_communicate
+          properties:
+            should_communicate:
+              type: boolean
+              description: Indicates if communication is enabled
+            channels:
+              type: array
+              items:
+                type: string
+                enum: ["EMAIL", "PUSH", "SMS", "WHATSAPP"]
+              description: List of communication channels
+              example: ["EMAIL"]
+        package_specifications:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/PackageSpecification"
+          description: Array of package specifications for the booking
+          example:
+            - size: "3GB"
+              destination: "US"
+            - package_id: "123123"
+            - destination: "NLD"
+      anyOf:
+        - required: ["email"]
+        - required: ["booking_id"]
+
+    PackageSpecification:
+      type: object
+      properties:
+        package_id:
+          type: string
+          description: ID of the package, used to directly select the package
+          example: "123123"
+        destination:
+          type: string
+          pattern: "^[A-Z]{2,3}$"
+          description: ISO2, ISO3, or continent code for the destination
+          example: "US"
+        size:
+          type: string
+          pattern: '^\d+(MB|GB)$'
+          description: Size of the package, e.g., '500MB' or '3GB'
+          example: "3GB"
+      anyOf:
+        - required: ["package_id"]
+        - required: ["destination"]
+      not:
+        required: ["package_id", "size"]
+      description: >
+        Package specification details. If `package_id` is set, the package is directly selected.
+        If `destination` and `size` are set, the appropriate package will be determined based on these parameters.
+        If only `destination` is set, a strategy will be applied based on the partner's implementation to determine the correct package.
+
+    BookingResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates whether the booking was created successfully
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the booking
+            title:
+              type: string
+              description: Title of the passenger
+            first_name:
+              type: string
+              description: First name of the passenger
+            last_name:
+              type: string
+              description: Last name of the passenger
+            full_name:
+              type: string
+              description: Full name of the passenger
+            pax:
+              type: integer
+              description: Number of passengers
+            email:
+              type: string
+              format: email
+              description: Email address of the booking contact
+            phone:
+              type: string
+              nullable: true
+              description: Phone number of the booking contact
+            booking_id:
+              type: string
+              nullable: true
+              description: ID of the booking
+            return_date:
+              type: string
+              format: date-time
+              description: Return date in ISO format
+            partner:
+              type: string
+              description: Partner ID associated with the booking
+            departure_date:
+              type: string
+              format: date-time
+              description: Departure date in ISO format
+            gender:
+              type: string
+              enum: ["M", "F", "O"]
+              description: Gender of the passenger
+            users:
+              type: array
+              items:
+                type: object
+              description: List of users associated with the booking
+            esims:
+              type: array
+              items:
+                type: object
+              description: List of eSIMs associated with the booking
+            locale:
+              type: string
+              description: Locale of the booking
+            data:
+              type: object
+              properties:
+                source:
+                  type: string
+                  description: Source of the booking, e.g., 'web'
+                manual:
+                  type: boolean
+                  description: Indicates if the booking was created manually
+            communication_options:
+              type: object
+              properties:
+                should_send_message:
+                  type: boolean
+                  description: Indicates if messages should be sent
+                channels:
+                  type: array
+                  items:
+                    type: string
+                    enum: ["EMAIL", "PUSH", "SMS", "WHATSAPP"]
+                  description: List of communication channels
+            created_at:
+              type: string
+              format: date-time
+              description: Creation timestamp of the booking
+            updated_at:
+              type: string
+              format: date-time
+              description: Last update timestamp of the booking
+            created_by:
+              type: string
+              description: Identifier of the entity that created the booking
+            updated_by:
+              type: string
+              description: Identifier of the entity that last updated the booking
+            promo_codes:
+              type: array
+              items:
+                type: object
+                properties:
+                  promo_code:
+                    type: string
+                    description: Promo code applied to the booking
+                  package_id:
+                    type: string
+                    description: ID of the package associated with the promo code
+                  package_size:
+                    type: string
+                    description: Size of the package associated with the promo code
+                  destination:
+                    type: string
+                    description: Destination associated with the promo code
+        message:
+          type: string
+          description: Response message
     Package:
       type: object
       properties:
@@ -432,7 +723,8 @@ components:
           type: string
           example: "0028QRS1h2KnXQMuU1RC"
   securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Fixed API token for authentication
