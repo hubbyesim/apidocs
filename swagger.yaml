@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
   title: Hubby API
-  description: API for managing travelers and packages.
+  description: API for managing bookings and packages.
   version: 1.0.0
 servers:
   - url: https://api-acc.hubby.dev
@@ -61,7 +61,6 @@ paths:
           description: Invalid request parameters
         "500":
           description: Server error
-  /traveler:
     post:
       tags:
         - traveler
@@ -481,7 +480,6 @@ components:
       anyOf:
         - required: ["email"]
         - required: ["booking_id"]
-
     PackageSpecification:
       type: object
       properties:
@@ -508,7 +506,6 @@ components:
         Package specification details. If `package_id` is set, the package is directly selected.
         If `destination` and `size` are set, the appropriate package will be determined based on these parameters.
         If only `destination` is set, a strategy will be applied based on the partner's implementation to determine the correct package.
-
     BookingResponse:
       type: object
       properties:
@@ -654,7 +651,6 @@ components:
           type: number
           format: float
           example: 8.7
-    Traveler:
       type: object
       properties:
         country:
@@ -727,4 +723,4 @@ components:
       type: apiKey
       in: header
       name: Authorization
-      description: Fixed API token for authentication
+      description: Fixed API token for authentication be sure to include the word `Bearer` followed by a space and the token
