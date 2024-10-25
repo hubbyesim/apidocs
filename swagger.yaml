@@ -429,3 +429,93 @@ components:
       in: header
       name: Authorization
       description: Fixed API token for authentication be sure to include the word `Bearer` followed by a space and the token
+  SuccessResponse:
+    type: object
+    properties:
+      success:
+        type: boolean
+        example: true
+      message:
+        type: string
+        description: Optional success message
+      data:
+        type: object
+        description: Main data payload
+      pagination:
+        $ref: "#/components/schemas/PaginationMeta"
+        description: Optional pagination metadata
+  ErrorResponse:
+    type: object
+    properties:
+      success:
+        type: boolean
+        example: false
+      error:
+        type: object
+        properties:
+          code:
+            type: integer
+            description: HTTP status code of the error
+          message:
+            type: string
+            description: Error message detailing the issue
+          details:
+            type: object
+            nullable: true
+            description: Optional additional error details
+  PaginationMeta:
+    type: object
+    properties:
+      totalItems:
+        type: integer
+        example: 100
+        description: Total number of items in the collection
+      totalPages:
+        type: integer
+        example: 10
+        description: Total number of pages available
+      currentPage:
+        type: integer
+        example: 1
+        description: The current page number
+      pageSize:
+        type: integer
+        example: 10
+        description: Number of items per page
+  responses:
+    SuccessResponse:
+      description: Request was successful
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/SuccessResponse"
+    NotFoundErrorResponse:
+      description: Resource or entity not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    ValidationErrorResponse:
+      description: Validation failed
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    UnauthorizedErrorResponse:
+      description: Authorization failed
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    ForbiddenErrorResponse:
+      description: Access rights are insufficient
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    ServerErrorResponse:
+      description: Server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
