@@ -10,40 +10,185 @@ servers:
     description: Production server
 
 paths:
-  /api/booking/{id}:
+  /api/bookings:
     get:
       security:
         - ApiKeyAuth: []
       tags:
         - Booking
-      summary: Fetch a booking
-      description: Fetches a specific booking by its ID.
+      summary: List all bookings
+      description: Retrieves a paginated list of bookings for the authenticated partner
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 25
+          description: Number of records to return
+        - name: lastDocId
+          in: query
+          required: false
+          schema:
+            type: string
+          description: ID of the last document from previous page for pagination
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedErrorResponse"
+        "500":
+          $ref: "#/components/responses/ServerErrorResponse"
+    
+    post:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Booking
+      summary: Create a new booking
+      description: Creates a new booking with the specified details
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - departure_date
+                - return_date
+                - communication_options
+                - package_specifications
+              properties:
+                departure_date:
+                  type: string
+                  format: date-time
+                email:
+                  type: string
+                  format: email
+                phone:
+                  type: string
+                  pattern: '^\+\d{1,3}\d{1,14}$'
+                first_name:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                last_name:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                full_name:
+                  type: string
+                  minLength: 1
+                  maxLength: 200
+                title:
+                  type: string
+                  enum: ['mr.', 'ms.', 'mrs.', 'miss', 'dr.', 'prof.']
+                pax:
+                  type: integer
+                  minimum: 1
+                return_date:
+                  type: string
+                  format: date-time
+                flight_number:
+                  type: string
+                  pattern: '^[a-zA-Z0-9]{1,10}$'
+                gender:
+                  type: string
+                  enum: ['M', 'F', 'O']
+                date_of_birth:
+                  type: string
+                  format: date-time
+                data:
+                  type: object
+                locale:
+                  type: string
+                  minLength: 2
+                  maxLength: 5
+                booking_id:
+                  type: string
+                  minLength: 3
+                communication_options:
+                  type: object
+                  required:
+                    - should_send_message
+                  properties:
+                    should_send_message:
+                      type: boolean
+                    channels:
+                      type: array
+                      items:
+                        type: string
+                        enum: ['EMAIL', 'PUSH', 'SMS', 'WHATSAPP']
+                package_specifications:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    properties:
+                      package_id:
+                        type: string
+                      destination:
+                        type: string
+                        pattern: '^[A-Z]{2,3}$'
+                      iata_code:
+                        type: string
+                        pattern: '^[A-Z]{2,3}$'
+                      size:
+                        type: string
+                        pattern: '^[1-9]\d*(MB|GB)$'
+                    oneOf:
+                      - required: ['package_id']
+                      - required: ['destination']
+                      - required: ['iata_code']
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "400":
+          $ref: "#/components/responses/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedErrorResponse"
+        "500":
+          $ref: "#/components/responses/ServerErrorResponse"
+
+  /api/bookings/{id}:
+    get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Booking
+      summary: Get booking details
+      description: Retrieves details of a specific booking
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
-          description: The unique identifier of the booking to retrieve.
+          description: Booking ID
       responses:
         "200":
-          description: Successfully fetched the booking
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/BookingResponse"
+          $ref: "#/components/responses/SuccessResponse"
         "404":
-          description: Booking not found
+          $ref: "#/components/responses/NotFoundErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedErrorResponse"
         "500":
-          description: Server error
-  /api/booking:
-    post:
+          $ref: "#/components/responses/ServerErrorResponse"
+    
+    put:
       security:
         - ApiKeyAuth: []
       tags:
         - Booking
-      summary: Create a booking
-      description: Creates a booking with the specified details.
+      summary: Update booking
+      description: Updates an existing booking
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Booking ID
       requestBody:
         required: true
         content:
@@ -52,101 +197,683 @@ paths:
               $ref: "#/components/schemas/Booking"
       responses:
         "200":
-          description: Booking created successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/BookingResponse"
+          $ref: "#/components/responses/SuccessResponse"
+        "404":
+          $ref: "#/components/responses/NotFoundErrorResponse"
         "400":
-          description: Invalid request parameters
+          $ref: "#/components/responses/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedErrorResponse"
         "500":
-          description: Server error
-  /api/packages:
-    get:
-      tags:
-        - packages
-      summary: Get available packages
-      description: Retrieve a list of available packages.
+          $ref: "#/components/responses/ServerErrorResponse"
+
+    delete:
       security:
         - ApiKeyAuth: []
+      tags:
+        - Booking
+      summary: Delete booking
+      description: Deletes a specific booking
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Booking ID
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "404":
+          $ref: "#/components/responses/NotFoundErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedErrorResponse"
+        "500":
+          $ref: "#/components/responses/ServerErrorResponse"
+
+  /api/bookings/byBookingId/{id}:
+    delete:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Booking
+      summary: Delete booking by booking ID
+      description: Deletes a booking using its external booking ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: External booking ID
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "404":
+          $ref: "#/components/responses/NotFoundErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedErrorResponse"
+        "500":
+          $ref: "#/components/responses/ServerErrorResponse"
+
+  /api/bookings/generateNewPackages/{externalId}:
+    put:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Booking
+      summary: Generate new packages for booking
+      description: Generates new packages for an existing booking
+      parameters:
+        - name: externalId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: External booking ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - package_specifications
+              properties:
+                package_specifications:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/PackageSpecification"
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "404":
+          $ref: "#/components/responses/NotFoundErrorResponse"
+        "400":
+          $ref: "#/components/responses/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedErrorResponse"
+        "500":
+          $ref: "#/components/responses/ServerErrorResponse"
+
+
+
+  /api/packages:
+    get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Package
+      summary: List all packages
+      description: Retrieves a list of all available packages
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedErrorResponse"
+        "500":
+          $ref: "#/components/responses/ServerErrorResponse"
+
+    post:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Package
+      summary: Create a new package
+      description: Creates a new package with the specified details
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - size
+                - iso
+                - days
+                - price
+              properties:
+                size:
+                  type: string
+                  example: "500MB"
+                iso:
+                  type: string
+                  example: "NLD"
+                days:
+                  type: number
+                  example: 30
+                price:
+                  type: number
+                  example: 29.99
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "400":
+          $ref: "#/components/responses/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedErrorResponse"
+        "500":
+          $ref: "#/components/responses/ServerErrorResponse"
+
+  /api/packages/{id}:
+    get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Package
+      summary: Get package details
+      description: Retrieves details of a specific package
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Package ID
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "404":
+          $ref: "#/components/responses/NotFoundErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedErrorResponse"
+        "500":
+          $ref: "#/components/responses/ServerErrorResponse"
+
+  /api/countries/packages:
+    get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Package
+      summary: Get all packages grouped by country
+      description: Retrieves all packages grouped by their respective countries
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedErrorResponse"
+        "500":
+          $ref: "#/components/responses/ServerErrorResponse"
+
+  /api/countries/{country}/packages:
+    get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Package
+      summary: Get packages for specific country
+      description: Retrieves all packages for a specific country
       parameters:
         - name: country
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Country ISO code
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "404":
+          $ref: "#/components/responses/NotFoundErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedErrorResponse"
+        "500":
+          $ref: "#/components/responses/ServerErrorResponse"
+
+
+
+  /api/partners:
+    get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Partner
+      summary: List all partners
+      description: Retrieves a paginated list of all partners (Admin only)
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 25
+          description: Number of records to return
+        - name: lastDocId
           in: query
           required: false
           schema:
             type: string
-            example: GRC
-          description: ISO3 country code to filter the list of packages.
+          description: ID of the last document from previous page for pagination
       responses:
         "200":
-          description: A list of packages
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  message:
-                    type: string
-                  data:
-                    type: object
-                    additionalProperties:
-                      type: array
-                      items:
-                        $ref: "#/components/schemas/Package"
-              example:
-                packages:
-                  FRA:
-                    - id: "339801"
-                      label: 1 GB
-                      bytes: 1000000000
-                      country: FRA
-                      price: 3.8
-                      customerPrice: 4.5
-                    - id: "339807"
-                      label: 5 GB
-                      bytes: 5000000000
-                      country: FRA
-                      price: 10.4
-                      customerPrice: 12.25
-                    - id: "339810"
-                      label: 10 GB
-                      bytes: 10000000000
-                      country: FRA
-                      price: 17.85
-                      customerPrice: 21
-                    - id: "339813"
-                      label: 20 GB
-                      bytes: 20000000000
-                      country: FRA
-                      price: 30.95
-                      customerPrice: 36.4
-                  GRC:
-                    - id: "339816"
-                      label: 1 GB
-                      bytes: 1000000000
-                      country: GRC
-                      price: 3.8
-                      customerPrice: 4.5
-                    - id: "339822"
-                      label: 5 GB
-                      bytes: 5000000000
-                      country: GRC
-                      price: 14.1
-                      customerPrice: 16.6
-                    - id: "339825"
-                      label: 10 GB
-                      bytes: 10000000000
-                      country: GRC
-                      price: 24.2
-                      customerPrice: 28.5
-                    - id: "339828"
-                      label: 20 GB
-                      bytes: 20000000000
-                      country: GRC
-                      price: 42
-                      customerPrice: 49.4
+          $ref: "#/components/responses/SuccessResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedErrorResponse"
+        "500":
+          $ref: "#/components/responses/ServerErrorResponse"
+
+    post:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Partner
+      summary: Create a new partner
+      description: Creates a new partner with the specified details
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - administration_fee
+                - income_per_gb
+                - type
+                - requires_card
+                - name
+                - last_invoice
+                - next_invoice
+              properties:
+                administration_fee:
+                  type: number
+                income_per_gb:
+                  type: number
+                type:
+                  type: string
+                requires_card:
+                  type: boolean
+                name:
+                  type: string
+                last_invoice:
+                  type: string
+                  format: date-time
+                next_invoice:
+                  type: string
+                  format: date-time
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "400":
+          $ref: "#/components/responses/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedErrorResponse"
+        "500":
+          $ref: "#/components/responses/ServerErrorResponse"
+
+  /api/partners/{id}:
+    get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Partner
+      summary: Get partner details
+      description: Retrieves details of a specific partner
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Partner ID
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "404":
+          $ref: "#/components/responses/NotFoundErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedErrorResponse"
+        "500":
+          $ref: "#/components/responses/ServerErrorResponse"
+
+    put:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Partner
+      summary: Update partner
+      description: Updates an existing partner's details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Partner ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - administration_fee
+                - income_per_gb
+                - type
+                - requires_card
+                - name
+                - last_invoice
+                - next_invoice
+              properties:
+                administration_fee:
+                  type: number
+                income_per_gb:
+                  type: number
+                type:
+                  type: string
+                requires_card:
+                  type: boolean
+                name:
+                  type: string
+                last_invoice:
+                  type: string
+                  format: date-time
+                next_invoice:
+                  type: string
+                  format: date-time
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "404":
+          $ref: "#/components/responses/NotFoundErrorResponse"
+        "400":
+          $ref: "#/components/responses/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedErrorResponse"
+        "500":
+          $ref: "#/components/responses/ServerErrorResponse"
+
+  /api/partners/withImages:
+    post:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Partner
+      summary: Create partner with images
+      description: Creates a new partner with logo and banner images
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - administration_fee
+                - income_per_gb
+                - type
+                - requires_card
+                - name
+                - last_invoice
+                - next_invoice
+              properties:
+                logoBase64:
+                  type: string
+                  description: Base64 encoded logo image
+                bannerBase64:
+                  type: string
+                  description: Base64 encoded banner image
+                administration_fee:
+                  type: number
+                income_per_gb:
+                  type: number
+                type:
+                  type: string
+                requires_card:
+                  type: boolean
+                name:
+                  type: string
+                last_invoice:
+                  type: string
+                  format: date-time
+                next_invoice:
+                  type: string
+                  format: date-time
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "400":
+          $ref: "#/components/responses/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedErrorResponse"
+        "500":
+          $ref: "#/components/responses/ServerErrorResponse"
+
+
+
+  /api/travelers:
+    get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Traveler
+      summary: List all travelers
+      description: Retrieves a list of all travelers
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedErrorResponse"
+        "500":
+          $ref: "#/components/responses/ServerErrorResponse"
+
+    post:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Traveler
+      summary: Create a new traveler
+      description: Creates a new traveler with the specified details
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - arrivalDate
+                - country
+                - returnDate
+              properties:
+                arrivalDate:
+                  type: string
+                  format: date-time
+                country:
+                  type: string
+                  minLength: 3
+                  maxLength: 3
+                email:
+                  type: string
+                  format: email
+                nationality:
+                  type: string
+                  minLength: 3
+                  maxLength: 3
+                package:
+                  type: string
+                phone:
+                  type: string
+                  pattern: /^\+\d{1,3}\d{1,14}$/
+                firstName:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                lastName:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                fullName:
+                  type: string
+                  minLength: 1
+                  maxLength: 200
+                title:
+                  type: string
+                  enum: ['mr.', 'ms.', 'mrs.', 'miss', 'dr.', 'prof.']
+                pax:
+                  type: integer
+                  minimum: 1
+                returnDate:
+                  type: string
+                  format: date-time
+                flightNumber:
+                  type: string
+                  pattern: ^[a-zA-Z0-9]{1,10}$
+                gender:
+                  type: string
+                  enum: ['M', 'F', 'O']
+                dateOfBirth:
+                  type: string
+                  format: date-time
+                packageSize:
+                  type: integer
+                  minimum: 1
+                language:
+                  type: string
+                  minLength: 2
+                  maxLength: 5
+                bookingId:
+                  type: string
+                  minLength: 3
+                shouldMessage:
+                  type: boolean
+                  default: true
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "400":
+          $ref: "#/components/responses/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedErrorResponse"
+        "500":
+          $ref: "#/components/responses/ServerErrorResponse"
+
+  /api/travelers/{id}:
+    get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Traveler
+      summary: Get traveler details
+      description: Retrieves details of a specific traveler
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Traveler ID
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "404":
+          $ref: "#/components/responses/NotFoundErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedErrorResponse"
+        "500":
+          $ref: "#/components/responses/ServerErrorResponse"
+
+    put:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Traveler
+      summary: Update traveler
+      description: Updates an existing traveler's details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Traveler ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TravelerRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "404":
+          $ref: "#/components/responses/NotFoundErrorResponse"
+        "400":
+          $ref: "#/components/responses/ValidationErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedErrorResponse"
+        "500":
+          $ref: "#/components/responses/ServerErrorResponse"
+
+    delete:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Traveler
+      summary: Delete traveler
+      description: Deletes a specific traveler if not processed and arrival date is in future
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Traveler ID
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "404":
+          $ref: "#/components/responses/NotFoundErrorResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedErrorResponse"
+        "500":
+          $ref: "#/components/responses/ServerErrorResponse"
+
+  /api/travelers/checkTraveler/{id}:
+    get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Traveler
+      summary: Check traveler existence
+      description: Checks if a traveler exists and belongs to the partner
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Traveler ID
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedErrorResponse"
+        "500":
+          $ref: "#/components/responses/ServerErrorResponse"
+
+
+
+  /api/countries:
+    get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Country
+      summary: List all countries
+      description: Retrieves a list of all available countries
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedErrorResponse"
+        "500":
+          $ref: "#/components/responses/ServerErrorResponse"
+
+
+
+
+
+
+
 components:
   schemas:
     Booking:
@@ -400,6 +1127,135 @@ components:
         message:
           type: string
           description: Response message
+    TravelerRequest:
+      type: object
+      required:
+        - arrivalDate
+        - country
+        - returnDate
+      properties:
+        arrivalDate:
+          type: string
+          format: date-time
+        country:
+          type: string
+          minLength: 3
+          maxLength: 3
+        email:
+          type: string
+          format: email
+        nationality:
+          type: string
+          minLength: 3
+          maxLength: 3
+        package:
+          type: string
+        phone:
+          type: string
+          pattern: '^\+\d{1,3}\d{1,14}$'
+        firstName:
+          type: string
+          minLength: 1
+          maxLength: 100
+        lastName:
+          type: string
+          minLength: 1
+          maxLength: 100
+        fullName:
+          type: string
+          minLength: 1
+          maxLength: 200
+        title:
+          type: string
+          enum: ['mr.', 'ms.', 'mrs.', 'miss', 'dr.', 'prof.']
+        pax:
+          type: integer
+          minimum: 1
+        returnDate:
+          type: string
+          format: date-time
+        flightNumber:
+          type: string
+          pattern: '^[a-zA-Z0-9]{1,10}$'
+        gender:
+          type: string
+          enum: ['M', 'F', 'O']
+        dateOfBirth:
+          type: string
+          format: date-time
+        packageSize:
+          type: integer
+          minimum: 1
+        language:
+          type: string
+          minLength: 2
+          maxLength: 5
+        bookingId:
+          type: string
+          minLength: 3
+        shouldMessage:
+          type: boolean
+          default: true
+    Partner:
+      type: object
+      required:
+        - administration_fee
+        - income_per_gb
+        - type
+        - requires_card
+        - name
+        - last_invoice
+        - next_invoice
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the partner
+        name:
+          type: string
+          description: Name of the partner
+        type:
+          type: string
+          description: Type of partner
+        administration_fee:
+          type: number
+          description: Administration fee for the partner
+        income_per_gb:
+          type: number
+          description: Income per GB for the partner
+        requires_card:
+          type: boolean
+          description: Whether the partner requires card information
+        last_invoice:
+          type: string
+          format: date-time
+          description: Date of the last invoice
+        next_invoice:
+          type: string
+          format: date-time
+          description: Date of the next invoice
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+    Country:
+      type: object
+      properties:
+        code:
+          type: string
+          description: ISO country code
+          example: "NLD"
+        name:
+          type: string
+          description: Country name
+          example: "Netherlands"
+        continent:
+          type: string
+          description: Continent code
+          example: "EU"
     Package:
       type: object
       properties:
