@@ -1,13 +1,24 @@
 openapi: 3.0.1
 info:
   title: Hubby API
-  description: API for managing bookings and packages.
+  description: |
+    Welcome to the Hubby API documentation. This API enables partners to seamlessly integrate eSIM booking and management capabilities into their applications.
+    
+    Key Features:
+    - Create and manage eSIM bookings for your customers
+    - Access our global package catalog with country-specific offerings
+    - Manage traveler information and communication preferences
+    - Track booking statuses and package activations
+    
+    Authentication:
+      All API requests require a valid API key in the Authorization header. Contact our support team to obtain your API credentials.
+    
+    Environment URLs:
+    - Production: https://docs.hubby.dev/
+    
+    Need Help?
+    - Technical Support: support@hubbyesim.com
   version: 1.1.0
-servers:
-  - url: https://api-acc.hubby.dev
-    description: Acceptance server
-  - url: https://api.hubby.dev
-    description: Production server
 
 paths:
   /api/bookings:
@@ -265,7 +276,7 @@ paths:
       summary: Generate new packages for booking
       description: Generates new packages for an existing booking
       parameters:
-        - name: externalId
+        - name: id
           in: path
           required: true
           schema:
@@ -416,223 +427,6 @@ paths:
           $ref: "#/components/responses/SuccessResponse"
         "404":
           $ref: "#/components/responses/NotFoundErrorResponse"
-        "401":
-          $ref: "#/components/responses/UnauthorizedErrorResponse"
-        "500":
-          $ref: "#/components/responses/ServerErrorResponse"
-
-
-
-  /api/partners:
-    get:
-      security:
-        - ApiKeyAuth: []
-      tags:
-        - Partner
-      summary: List all partners
-      description: Retrieves a paginated list of all partners (Admin only)
-      parameters:
-        - name: limit
-          in: query
-          required: false
-          schema:
-            type: integer
-            default: 25
-          description: Number of records to return
-        - name: lastDocId
-          in: query
-          required: false
-          schema:
-            type: string
-          description: ID of the last document from previous page for pagination
-      responses:
-        "200":
-          $ref: "#/components/responses/SuccessResponse"
-        "401":
-          $ref: "#/components/responses/UnauthorizedErrorResponse"
-        "500":
-          $ref: "#/components/responses/ServerErrorResponse"
-
-    post:
-      security:
-        - ApiKeyAuth: []
-      tags:
-        - Partner
-      summary: Create a new partner
-      description: Creates a new partner with the specified details
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - administration_fee
-                - income_per_gb
-                - type
-                - requires_card
-                - name
-                - last_invoice
-                - next_invoice
-              properties:
-                administration_fee:
-                  type: number
-                income_per_gb:
-                  type: number
-                type:
-                  type: string
-                requires_card:
-                  type: boolean
-                name:
-                  type: string
-                last_invoice:
-                  type: string
-                  format: date-time
-                next_invoice:
-                  type: string
-                  format: date-time
-      responses:
-        "200":
-          $ref: "#/components/responses/SuccessResponse"
-        "400":
-          $ref: "#/components/responses/ValidationErrorResponse"
-        "401":
-          $ref: "#/components/responses/UnauthorizedErrorResponse"
-        "500":
-          $ref: "#/components/responses/ServerErrorResponse"
-
-  /api/partners/{id}:
-    get:
-      security:
-        - ApiKeyAuth: []
-      tags:
-        - Partner
-      summary: Get partner details
-      description: Retrieves details of a specific partner
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-          description: Partner ID
-      responses:
-        "200":
-          $ref: "#/components/responses/SuccessResponse"
-        "404":
-          $ref: "#/components/responses/NotFoundErrorResponse"
-        "401":
-          $ref: "#/components/responses/UnauthorizedErrorResponse"
-        "500":
-          $ref: "#/components/responses/ServerErrorResponse"
-
-    put:
-      security:
-        - ApiKeyAuth: []
-      tags:
-        - Partner
-      summary: Update partner
-      description: Updates an existing partner's details
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-          description: Partner ID
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - administration_fee
-                - income_per_gb
-                - type
-                - requires_card
-                - name
-                - last_invoice
-                - next_invoice
-              properties:
-                administration_fee:
-                  type: number
-                income_per_gb:
-                  type: number
-                type:
-                  type: string
-                requires_card:
-                  type: boolean
-                name:
-                  type: string
-                last_invoice:
-                  type: string
-                  format: date-time
-                next_invoice:
-                  type: string
-                  format: date-time
-      responses:
-        "200":
-          $ref: "#/components/responses/SuccessResponse"
-        "404":
-          $ref: "#/components/responses/NotFoundErrorResponse"
-        "400":
-          $ref: "#/components/responses/ValidationErrorResponse"
-        "401":
-          $ref: "#/components/responses/UnauthorizedErrorResponse"
-        "500":
-          $ref: "#/components/responses/ServerErrorResponse"
-
-  /api/partners/withImages:
-    post:
-      security:
-        - ApiKeyAuth: []
-      tags:
-        - Partner
-      summary: Create partner with images
-      description: Creates a new partner with logo and banner images
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - administration_fee
-                - income_per_gb
-                - type
-                - requires_card
-                - name
-                - last_invoice
-                - next_invoice
-              properties:
-                logoBase64:
-                  type: string
-                  description: Base64 encoded logo image
-                bannerBase64:
-                  type: string
-                  description: Base64 encoded banner image
-                administration_fee:
-                  type: number
-                income_per_gb:
-                  type: number
-                type:
-                  type: string
-                requires_card:
-                  type: boolean
-                name:
-                  type: string
-                last_invoice:
-                  type: string
-                  format: date-time
-                next_invoice:
-                  type: string
-                  format: date-time
-      responses:
-        "200":
-          $ref: "#/components/responses/SuccessResponse"
-        "400":
-          $ref: "#/components/responses/ValidationErrorResponse"
         "401":
           $ref: "#/components/responses/UnauthorizedErrorResponse"
         "500":
@@ -867,10 +661,6 @@ paths:
           $ref: "#/components/responses/UnauthorizedErrorResponse"
         "500":
           $ref: "#/components/responses/ServerErrorResponse"
-
-
-
-
 
 
 
@@ -1196,51 +986,6 @@ components:
         shouldMessage:
           type: boolean
           default: true
-    Partner:
-      type: object
-      required:
-        - administration_fee
-        - income_per_gb
-        - type
-        - requires_card
-        - name
-        - last_invoice
-        - next_invoice
-      properties:
-        id:
-          type: string
-          description: Unique identifier of the partner
-        name:
-          type: string
-          description: Name of the partner
-        type:
-          type: string
-          description: Type of partner
-        administration_fee:
-          type: number
-          description: Administration fee for the partner
-        income_per_gb:
-          type: number
-          description: Income per GB for the partner
-        requires_card:
-          type: boolean
-          description: Whether the partner requires card information
-        last_invoice:
-          type: string
-          format: date-time
-          description: Date of the last invoice
-        next_invoice:
-          type: string
-          format: date-time
-          description: Date of the next invoice
-        created_at:
-          type: string
-          format: date-time
-          description: Creation timestamp
-        updated_at:
-          type: string
-          format: date-time
-          description: Last update timestamp
     Country:
       type: object
       properties:
@@ -1344,34 +1089,34 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/SuccessResponse"
+            $ref: "#/components/SuccessResponse"
     NotFoundErrorResponse:
       description: Resource or entity not found
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ErrorResponse"
+            $ref: "#/components/ErrorResponse"
     ValidationErrorResponse:
       description: Validation failed
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ErrorResponse"
+            $ref: "#/components/ErrorResponse"
     UnauthorizedErrorResponse:
       description: Authorization failed
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ErrorResponse"
+            $ref: "#/components/ErrorResponse"
     ForbiddenErrorResponse:
       description: Access rights are insufficient
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ErrorResponse"
+            $ref: "#/components/ErrorResponse"
     ServerErrorResponse:
       description: Server error
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ErrorResponse"
+            $ref: "#/components/ErrorResponse"
