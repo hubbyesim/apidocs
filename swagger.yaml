@@ -78,9 +78,9 @@ paths:
                         type: boolean
                         description: Indicates if there is a previous page
         "401":
-          $ref: "#/components/responses/UnauthorizedErrorResponse"
+          $ref: "#/components/schemas/UnauthorizedErrorResponse"
         "500":
-          $ref: "#/components/responses/ServerErrorResponse"
+          $ref: "#/components/schemas/ServerErrorResponse"
     
     post:
       security:
@@ -184,13 +184,13 @@ paths:
                       - required: ['iata_code']
       responses:
         "200":
-          $ref: "#/components/responses/SuccessResponse"
+          $ref: "#/components/schemas/SuccessResponse"
         "400":
-          $ref: "#/components/responses/ValidationErrorResponse"
+          $ref: "#/components/schemas/ValidationErrorResponse"
         "401":
-          $ref: "#/components/responses/UnauthorizedErrorResponse"
+          $ref: "#/components/schemas/UnauthorizedErrorResponse"
         "500":
-          $ref: "#/components/responses/ServerErrorResponse"
+          $ref: "#/components/schemas/ServerErrorResponse"
 
   /api/bookings/{id}:
     get:
@@ -209,13 +209,13 @@ paths:
           description: Booking ID
       responses:
         "200":
-          $ref: "#/components/responses/SuccessResponse"
+          $ref: "#/components/schemas/SuccessResponse"
         "404":
-          $ref: "#/components/responses/NotFoundErrorResponse"
+          $ref: "#/components/schemas/NotFoundErrorResponse"
         "401":
-          $ref: "#/components/responses/UnauthorizedErrorResponse"
+          $ref: "#/components/schemas/UnauthorizedErrorResponse"
         "500":
-          $ref: "#/components/responses/ServerErrorResponse"
+          $ref: "#/components/schemas/ServerErrorResponse"
     
     put:
       security:
@@ -239,15 +239,15 @@ paths:
               $ref: "#/components/schemas/Booking"
       responses:
         "200":
-          $ref: "#/components/responses/SuccessResponse"
+          $ref: "#/components/schemas/SuccessResponse"
         "404":
-          $ref: "#/components/responses/NotFoundErrorResponse"
+          $ref: "#/components/schemas/NotFoundErrorResponse"
         "400":
-          $ref: "#/components/responses/ValidationErrorResponse"
+          $ref: "#/components/schemas/ValidationErrorResponse"
         "401":
-          $ref: "#/components/responses/UnauthorizedErrorResponse"
+          $ref: "#/components/schemas/UnauthorizedErrorResponse"
         "500":
-          $ref: "#/components/responses/ServerErrorResponse"
+          $ref: "#/components/schemas/ServerErrorResponse"
 
     delete:
       security:
@@ -265,13 +265,13 @@ paths:
           description: Booking ID
       responses:
         "200":
-          $ref: "#/components/responses/SuccessResponse"
+          $ref: "#/components/schemas/SuccessResponse"
         "404":
-          $ref: "#/components/responses/NotFoundErrorResponse"
+          $ref: "#/components/schemas/NotFoundErrorResponse"
         "401":
-          $ref: "#/components/responses/UnauthorizedErrorResponse"
+          $ref: "#/components/schemas/UnauthorizedErrorResponse"
         "500":
-          $ref: "#/components/responses/ServerErrorResponse"
+          $ref: "#/components/schemas/ServerErrorResponse"
 
   /api/bookings/byBookingId/{id}:
     delete:
@@ -290,13 +290,13 @@ paths:
           description: External booking ID
       responses:
         "200":
-          $ref: "#/components/responses/SuccessResponse"
+          $ref: "#/components/schemas/SuccessResponse"
         "404":
-          $ref: "#/components/responses/NotFoundErrorResponse"
+          $ref: "#/components/schemas/NotFoundErrorResponse"
         "401":
-          $ref: "#/components/responses/UnauthorizedErrorResponse"
+          $ref: "#/components/schemas/UnauthorizedErrorResponse"
         "500":
-          $ref: "#/components/responses/ServerErrorResponse"
+          $ref: "#/components/schemas/ServerErrorResponse"
 
   /api/bookings/generateNewPackages/{externalId}:
     put:
@@ -328,15 +328,15 @@ paths:
                     $ref: "#/components/schemas/PackageSpecification"
       responses:
         "200":
-          $ref: "#/components/responses/SuccessResponse"
+          $ref: "#/components/schemas/SuccessResponse"
         "404":
-          $ref: "#/components/responses/NotFoundErrorResponse"
+          $ref: "#/components/schemas/NotFoundErrorResponse"
         "400":
-          $ref: "#/components/responses/ValidationErrorResponse"
+          $ref: "#/components/schemas/ValidationErrorResponse"
         "401":
-          $ref: "#/components/responses/UnauthorizedErrorResponse"
+          $ref: "#/components/schemas/UnauthorizedErrorResponse"
         "500":
-          $ref: "#/components/responses/ServerErrorResponse"
+          $ref: "#/components/schemas/ServerErrorResponse"
 
 
 
@@ -350,11 +350,11 @@ paths:
       description: Retrieves a list of all available packages
       responses:
         "200":
-          $ref: "#/components/responses/SuccessResponse"
+          $ref: "#/components/schemas/SuccessResponse"
         "401":
-          $ref: "#/components/responses/UnauthorizedErrorResponse"
+          $ref: "#/components/schemas/UnauthorizedErrorResponse"
         "500":
-          $ref: "#/components/responses/ServerErrorResponse"
+          $ref: "#/components/schemas/ServerErrorResponse"
 
     post:
       security:
@@ -389,13 +389,13 @@ paths:
                   example: 29.99
       responses:
         "200":
-          $ref: "#/components/responses/SuccessResponse"
+          $ref: "#/components/schemas/SuccessResponse"
         "400":
-          $ref: "#/components/responses/ValidationErrorResponse"
+          $ref: "#/components/schemas/ValidationErrorResponse"
         "401":
-          $ref: "#/components/responses/UnauthorizedErrorResponse"
+          $ref: "#/components/schemas/UnauthorizedErrorResponse"
         "500":
-          $ref: "#/components/responses/ServerErrorResponse"
+          $ref: "#/components/schemas/ServerErrorResponse"
 
   /api/packages/{id}:
     get:
@@ -414,13 +414,13 @@ paths:
           description: Package ID
       responses:
         "200":
-          $ref: "#/components/responses/SuccessResponse"
+          $ref: "#/components/schemas/SuccessResponse"
         "404":
-          $ref: "#/components/responses/NotFoundErrorResponse"
+          $ref: "#/components/schemas/NotFoundErrorResponse"
         "401":
-          $ref: "#/components/responses/UnauthorizedErrorResponse"
+          $ref: "#/components/schemas/UnauthorizedErrorResponse"
         "500":
-          $ref: "#/components/responses/ServerErrorResponse"
+          $ref: "#/components/schemas/ServerErrorResponse"
 
   /api/countries/packages:
     get:
@@ -432,11 +432,11 @@ paths:
       description: Retrieves all packages grouped by their respective countries
       responses:
         "200":
-          $ref: "#/components/responses/SuccessResponse"
+          $ref: "#/components/schemas/SuccessResponse"
         "401":
-          $ref: "#/components/responses/UnauthorizedErrorResponse"
+          $ref: "#/components/schemas/UnauthorizedErrorResponse"
         "500":
-          $ref: "#/components/responses/ServerErrorResponse"
+          $ref: "#/components/schemas/ServerErrorResponse"
 
   /api/countries/{country}/packages:
     get:
@@ -455,13 +455,13 @@ paths:
           description: Country ISO code
       responses:
         "200":
-          $ref: "#/components/responses/SuccessResponse"
+          $ref: "#/components/schemas/SuccessResponse"
         "404":
-          $ref: "#/components/responses/NotFoundErrorResponse"
+          $ref: "#/components/schemas/NotFoundErrorResponse"
         "401":
-          $ref: "#/components/responses/UnauthorizedErrorResponse"
+          $ref: "#/components/schemas/UnauthorizedErrorResponse"
         "500":
-          $ref: "#/components/responses/ServerErrorResponse"
+          $ref: "#/components/schemas/ServerErrorResponse"
 
 
 
@@ -475,11 +475,11 @@ paths:
       description: Retrieves a list of all available countries
       responses:
         "200":
-          $ref: "#/components/responses/SuccessResponse"
+          $ref: "#/components/schemas/SuccessResponse"
         "401":
-          $ref: "#/components/responses/UnauthorizedErrorResponse"
+          $ref: "#/components/schemas/UnauthorizedErrorResponse"
         "500":
-          $ref: "#/components/responses/ServerErrorResponse"
+          $ref: "#/components/schemas/ServerErrorResponse"
 
 
 
