@@ -795,7 +795,64 @@ components:
         pagination:
           $ref: "#/components/schemas/PaginationMeta"
           description: Optional pagination metadata
-    ErrorResponse:
+    NotFoundErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              description: HTTP status code of the error
+            message:
+              type: string
+              description: Error message detailing the issue
+            details:
+              type: object
+              nullable: true
+              description: Optional additional error details
+    ValidationErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              description: HTTP status code of the error
+            message:
+              type: string
+              description: Error message detailing the issue
+            details:
+              type: object
+              nullable: true
+              description: Optional additional error details
+    UnauthorizedErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              description: HTTP status code of the error
+            message:
+              type: string
+              description: Error message detailing the issue
+            details:
+              type: object
+              nullable: true
+              description: Optional additional error details
+    ServerErrorResponse:
       type: object
       properties:
         success:
@@ -835,40 +892,3 @@ components:
         hasPrevPage:
           type: boolean
           description: Indicates if there is a previous page
-    Responses:
-      SuccessResponse:
-        description: Request was successful
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/SuccessResponse"
-      NotFoundErrorResponse:
-        description: Resource or entity not found
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/ErrorResponse"
-      ValidationErrorResponse:
-        description: Validation failed
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/ErrorResponse"
-      UnauthorizedErrorResponse:
-        description: Authorization failed
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/ErrorResponse"
-      ForbiddenErrorResponse:
-        description: Access rights are insufficient
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/ErrorResponse"
-      ServerErrorResponse:
-        description: Server error
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/ErrorResponse"
