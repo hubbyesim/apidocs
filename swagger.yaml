@@ -380,7 +380,7 @@ paths:
       summary: Generate new packages for booking
       description: Generates new packages for an existing booking
       parameters:
-        - name: id
+        - name: externalId
           in: path
           required: true
           schema:
