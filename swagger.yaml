@@ -1,6 +1,7 @@
 openapi: 3.0.1
 info:
   title: Hubby API
+  version: 1.1.0
   description: |
     Welcome to the Hubby API documentation. This API enables partners to seamlessly integrate eSIM booking and management capabilities into their applications.
     
@@ -18,7 +19,6 @@ info:
     
     Need Help?
     - Technical Support: support@hubbyesim.com
-  version: 1.1.0
 
 paths:
   /api/bookings:
@@ -484,6 +484,12 @@ paths:
 
 
 components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Fixed API token for authentication. Be sure to include the word `Bearer` followed by a space and the token.
   schemas:
     Booking:
       type: object
@@ -774,12 +780,6 @@ components:
           type: number
           format: float
           example: 8.7
-    SecuritySchemes:
-      ApiKeyAuth:
-        type: apiKey
-        in: header
-        name: Authorization
-        description: Fixed API token for authentication be sure to include the word `Bearer` followed by a space and the token
     SuccessResponse:
       type: object
       properties:
