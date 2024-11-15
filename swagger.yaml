@@ -774,101 +774,101 @@ components:
           type: number
           format: float
           example: 8.7
-  securitySchemes:
-    ApiKeyAuth:
-      type: apiKey
-      in: header
-      name: Authorization
-      description: Fixed API token for authentication be sure to include the word `Bearer` followed by a space and the token
-  SuccessResponse:
-    type: object
-    properties:
-      success:
-        type: boolean
-        example: true
-      message:
-        type: string
-        description: Optional success message
-      data:
-        type: object
-        description: Main data payload
-      pagination:
-        $ref: "#/components/schemas/PaginationMeta"
-        description: Optional pagination metadata
-  ErrorResponse:
-    type: object
-    properties:
-      success:
-        type: boolean
-        example: false
-      error:
-        type: object
-        properties:
-          code:
-            type: integer
-            description: HTTP status code of the error
-          message:
-            type: string
-            description: Error message detailing the issue
-          details:
-            type: object
-            nullable: true
-            description: Optional additional error details
-  PaginationMeta:
-    type: object
-    properties:
-      currentPage:
-        type: integer
-        description: Current page number
-      totalPages:
-        type: integer
-        description: Total number of pages available
-      perPage:
-        type: integer
-        description: Number of items per page
-      totalItems:
-        type: integer
-        description: Total number of items in the collection
-      hasNextPage:
-        type: boolean
-        description: Indicates if there is a next page
-      hasPrevPage:
-        type: boolean
-        description: Indicates if there is a previous page
-  responses:
+    SecuritySchemes:
+      ApiKeyAuth:
+        type: apiKey
+        in: header
+        name: Authorization
+        description: Fixed API token for authentication be sure to include the word `Bearer` followed by a space and the token
     SuccessResponse:
-      description: Request was successful
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/SuccessResponse"
-    NotFoundErrorResponse:
-      description: Resource or entity not found
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/ErrorResponse"
-    ValidationErrorResponse:
-      description: Validation failed
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/ErrorResponse"
-    UnauthorizedErrorResponse:
-      description: Authorization failed
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/ErrorResponse"
-    ForbiddenErrorResponse:
-      description: Access rights are insufficient
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/ErrorResponse"
-    ServerErrorResponse:
-      description: Server error
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/ErrorResponse"
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          description: Optional success message
+        data:
+          type: object
+          description: Main data payload
+        pagination:
+          $ref: "#/components/schemas/PaginationMeta"
+          description: Optional pagination metadata
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              description: HTTP status code of the error
+            message:
+              type: string
+              description: Error message detailing the issue
+            details:
+              type: object
+              nullable: true
+              description: Optional additional error details
+    PaginationMeta:
+      type: object
+      properties:
+        currentPage:
+          type: integer
+          description: Current page number
+        totalPages:
+          type: integer
+          description: Total number of pages available
+        perPage:
+          type: integer
+          description: Number of items per page
+        totalItems:
+          type: integer
+          description: Total number of items in the collection
+        hasNextPage:
+          type: boolean
+          description: Indicates if there is a next page
+        hasPrevPage:
+          type: boolean
+          description: Indicates if there is a previous page
+    Responses:
+      SuccessResponse:
+        description: Request was successful
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/SuccessResponse"
+      NotFoundErrorResponse:
+        description: Resource or entity not found
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/ErrorResponse"
+      ValidationErrorResponse:
+        description: Validation failed
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/ErrorResponse"
+      UnauthorizedErrorResponse:
+        description: Authorization failed
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/ErrorResponse"
+      ForbiddenErrorResponse:
+        description: Access rights are insufficient
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/ErrorResponse"
+      ServerErrorResponse:
+        description: Server error
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/ErrorResponse"
