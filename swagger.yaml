@@ -606,7 +606,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SuccessResponse"
+                $ref: '#/components/schemas/PackagesGroupedByCountryResponse'
         "401":
           description: Unauthorized access
           content:
@@ -641,7 +641,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SuccessResponse"
+                $ref: '#/components/schemas/PackagesGroupedBySingleCountryResponse'
         "404":
           description: Resource not found
           content:
@@ -982,6 +982,114 @@ components:
           nullable: true
           description: Bokun platform ID
           example: 123456
+    PackagesGroupedByCountryResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Packages grouped by country fetched successfully."
+        data:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier of the package
+                label:
+                  type: string
+                  description: Display label for the package
+                bytes:
+                  type: integer
+                  description: Size of the package in bytes
+                country:
+                  type: string
+                  description: Reference to the country code
+                price:
+                  type: number
+                  format: float
+                  description: Customer-facing price of the package
+                customerPrice:
+                  type: number
+                  format: float
+                  description: Partner-facing price of the package
+      example:
+        success: true
+        message: "Packages grouped by country fetched successfully."
+        data:
+          VCT:
+            - id: "111111"
+              label: "500 MB"
+              bytes: 500170752
+              country: "VCT"
+              price: 1.1
+              customerPrice: 0
+          IDN:
+            - id: "222222"
+              label: "500 MB"
+              bytes: 500170752
+              country: "IDN"
+              price: 1.2
+              customerPrice: 1
+          MDV:
+            - id: "333333"
+              label: "500 MB"
+              bytes: 500170752
+              country: "MDV"
+              price: 1.3
+              customerPrice: 2
+    PackagesGroupedBySingleCountryResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Packages grouped by country fetched successfully."
+        data:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier of the package
+                label:
+                  type: string
+                  description: Display label for the package
+                bytes:
+                  type: integer
+                  description: Size of the package in bytes
+                country:
+                  type: string
+                  description: Reference to the country code
+                price:
+                  type: number
+                  format: float
+                  description: Customer-facing price of the package
+                customerPrice:
+                  type: number
+                  format: float
+                  description: Partner-facing price of the package
+      example:
+        success: true
+        message: "Packages grouped by country fetched successfully."
+        data:
+          VCT:
+            - id: "111111"
+              label: "500 MB"
+              bytes: 500170752
+              country: "VCT"
+              price: 1.1
+              customerPrice: 0
     PackageResponse:
       type: object
       properties:
