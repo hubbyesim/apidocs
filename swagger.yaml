@@ -13,12 +13,16 @@ info:
     Authentication:
       All API requests require a valid API key in the Authorization header. Contact our support team to obtain your API credentials.
     
-    Environment URLs:
-    - Production: https://us-central1-hubby-esim.cloudfunctions.net
-    
     Need Help?
     - Technical Support: support@hubbyesim.com
 
+servers:
+- url: https://us-central1-hubby-esim.cloudfunctions.net
+  description: Production server
+- url: https://us-central1-hubby-esim-dev.cloudfunctions.net
+  description: Staging server
+
+  
 paths:
   /api/bookings:
     get:
