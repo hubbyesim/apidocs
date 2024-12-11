@@ -17,10 +17,10 @@ info:
     - Technical Support: support@hubbyesim.com
 
 servers:
-- url: https://us-central1-hubby-esim.cloudfunctions.net
+- url: api.hubby.dev
   description: Production server
-- url: https://us-central1-hubby-esim-dev.cloudfunctions.net
-  description: Staging server
+- url: api-acc.hubby.dev
+  description: Acceptance server
 
   
 paths:
