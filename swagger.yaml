@@ -10,9 +10,6 @@ info:
     - Access our global package catalog with country-specific offerings
     - Track booking statuses and package activations
     
-    Authentication:
-      All API requests require a valid API key in the Authorization header. Contact our support team to obtain your API credentials.
-    
     Need Help?
     - Technical Support: support@hubbyesim.com
 
@@ -26,8 +23,6 @@ servers:
 paths:
   /api/bookings:
     get:
-      security:
-        - ApiKeyAuth: []
       tags:
         - Booking
       summary: List all bookings
@@ -82,8 +77,6 @@ paths:
                 $ref: "#/components/schemas/ServerErrorResponse"
     
     post:
-      security:
-        - ApiKeyAuth: []
       tags:
         - Booking
       summary: Create a new booking
@@ -237,8 +230,6 @@ paths:
 
   /api/bookings/{id}:
     get:
-      security:
-        - ApiKeyAuth: []
       tags:
         - Booking
       summary: Get booking details
@@ -286,8 +277,6 @@ paths:
                 $ref: "#/components/schemas/ServerErrorResponse"
     
     put:
-      security:
-        - ApiKeyAuth: []
       tags:
         - Booking
       summary: Update booking
@@ -349,8 +338,6 @@ paths:
                 $ref: "#/components/schemas/ServerErrorResponse"
 
     delete:
-      security:
-        - ApiKeyAuth: []
       tags:
         - Booking
       summary: Delete booking
@@ -401,8 +388,6 @@ paths:
 
   /api/bookings/{id}/byExternalBookingId:
     delete:
-      security:
-        - ApiKeyAuth: []
       tags:
         - Booking
       summary: Delete booking by booking ID
@@ -453,8 +438,6 @@ paths:
 
   /api/bookings/generateNewPackages/{id}:
     put:
-      security:
-        - ApiKeyAuth: []
       tags:
         - Booking
       summary: Generate new promo codes for booking
@@ -527,8 +510,6 @@ paths:
 
   /api/packages:
     get:
-      security:
-        - ApiKeyAuth: []
       tags:
         - Package
       summary: List all packages
@@ -566,8 +547,6 @@ paths:
 
   /api/packages/{id}:
     get:
-      security:
-        - ApiKeyAuth: []
       tags:
         - Package
       summary: Get package details
@@ -618,8 +597,6 @@ paths:
 
   /api/countries/packages:
     get:
-      security:
-        - ApiKeyAuth: []
       tags:
         - Package
       summary: Get all packages grouped by country
@@ -646,8 +623,6 @@ paths:
 
   /api/countries/{country}/packages:
     get:
-      security:
-        - ApiKeyAuth: []
       tags:
         - Package
       summary: Get packages for specific country
@@ -689,8 +664,6 @@ paths:
 
   /api/countries:
     get:
-      security:
-        - ApiKeyAuth: []
       tags:
         - Country
       summary: List all countries
@@ -729,12 +702,6 @@ paths:
 
 
 components:
-  securitySchemes:
-    ApiKeyAuth:
-      type: apiKey
-      in: header
-      name: Authorization
-      description: Fixed API token for authentication. Be sure to include the word `Bearer` followed by a space and the token.
   schemas:
     BookingRequest:
       type: object
