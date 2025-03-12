@@ -10,9 +10,6 @@ info:
     - Access our global package catalog with country-specific offerings
     - Track booking statuses and package activations
     
-    Authentication:
-      All API requests require a valid API key in the Authorization header. Contact our support team to obtain your API credentials.
-    
     Need Help?
     - Technical Support: support@hubbyesim.com
 
@@ -26,12 +23,12 @@ servers:
 paths:
   /api/bookings:
     get:
-      security:
-        - ApiKeyAuth: []
       tags:
         - Booking
       summary: List all bookings
-      description: Retrieves a paginated list of bookings for the authenticated partner
+      description: |
+        Retrieves a paginated list of bookings for the authenticated partner.
+        The response is always fresh and not cached (uses Cache-Control headers).
       parameters:
         - name: perPage
           in: query
@@ -39,14 +36,13 @@ paths:
           schema:
             type: integer
             default: 10
-          description: Number of records to return per page
-        - name: page
+          description: Number of records to return per page (minimum 1)
+        - name: cursor
           in: query
           required: false
           schema:
-            type: integer
-            default: 1
-          description: Page number to retrieve
+            type: string
+          description: Cursor for pagination (use nextCursor/prevCursor from previous response)
       responses:
         "200":
           description: A paginated list of bookings
@@ -81,8 +77,6 @@ paths:
                 $ref: "#/components/schemas/ServerErrorResponse"
     
     post:
-      security:
-        - ApiKeyAuth: []
       tags:
         - Booking
       summary: Create a new booking
@@ -236,8 +230,6 @@ paths:
 
   /api/bookings/{id}:
     get:
-      security:
-        - ApiKeyAuth: []
       tags:
         - Booking
       summary: Get booking details
@@ -264,9 +256,7 @@ paths:
                     type: string
                     example: Success message
                   data:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/BookingResponse"
+                    $ref: "#/components/schemas/BookingResponse"
         "404":
           description: Resource not found
           content:
@@ -287,8 +277,6 @@ paths:
                 $ref: "#/components/schemas/ServerErrorResponse"
     
     put:
-      security:
-        - ApiKeyAuth: []
       tags:
         - Booking
       summary: Update booking
@@ -321,9 +309,9 @@ paths:
                     type: string
                     example: Success message
                   data:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/BookingResponse"
+                    type: object
+                    description: Empty object on successful update
+                    example: {}
         "404":
           description: Resource not found
           content:
@@ -350,8 +338,6 @@ paths:
                 $ref: "#/components/schemas/ServerErrorResponse"
 
     delete:
-      security:
-        - ApiKeyAuth: []
       tags:
         - Booking
       summary: Delete booking
@@ -378,9 +364,9 @@ paths:
                     type: string
                     example: Success message
                   data:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/BookingResponse"
+                    type: object
+                    description: Empty object
+                    example: {}
         "404":
           description: Resource not found
           content:
@@ -400,10 +386,8 @@ paths:
               schema:
                 $ref: "#/components/schemas/ServerErrorResponse"
 
-  /api/bookings/byBookingId/{id}:
+  /api/bookings/{id}/byExternalBookingId:
     delete:
-      security:
-        - ApiKeyAuth: []
       tags:
         - Booking
       summary: Delete booking by booking ID
@@ -414,7 +398,7 @@ paths:
           required: true
           schema:
             type: string
-          description: External booking ID
+          description: External booking ID (booking_id)
       responses:
         "200":
           description: Successful response
@@ -430,21 +414,21 @@ paths:
                     type: string
                     example: Success message
                   data:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/BookingResponse"
-        "404":
-          description: Resource not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/NotFoundErrorResponse"
+                    type: object
+                    description: Empty object
+                    example: {}
         "401":
           description: Unauthorized access
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/UnauthorizedErrorResponse"
+        "404":
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundErrorResponse"
         "500":
           description: Internal server error
           content:
@@ -452,21 +436,21 @@ paths:
               schema:
                 $ref: "#/components/schemas/ServerErrorResponse"
 
-  /api/bookings/generateNewPackages/{externalId}:
+  /api/bookings/generateNewPackages/{id}:
     put:
-      security:
-        - ApiKeyAuth: []
       tags:
         - Booking
-      summary: Generate new packages for booking
-      description: Generates new packages for an existing booking
+      summary: Generate new promo codes for booking
+      description: |
+        Generates new promo codes for an existing booking based on the provided package specifications.
+        The booking is identified by its external booking ID (booking_id).
       parameters:
-        - name: externalId
+        - name: id
           in: path
           required: true
           schema:
             type: string
-          description: External booking ID
+          description: External booking ID (booking_id)
       requestBody:
         required: true
         content:
@@ -480,6 +464,7 @@ paths:
                   type: array
                   items:
                     $ref: "#/components/schemas/PackageSpecification"
+                  description: List of package specifications for generating promo codes
       responses:
         "200":
           description: Successful response
@@ -495,17 +480,9 @@ paths:
                     type: string
                     example: Success message
                   data:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/BookingResponse"
-        "404":
-          description: Resource not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/NotFoundErrorResponse"
+                    $ref: "#/components/schemas/BookingResponse"
         "400":
-          description: Validation error
+          description: Validation error in package specifications
           content:
             application/json:
               schema:
@@ -516,6 +493,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UnauthorizedErrorResponse"
+        "404":
+          description: Booking not found with the provided external ID
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundErrorResponse"
         "500":
           description: Internal server error
           content:
@@ -527,8 +510,6 @@ paths:
 
   /api/packages:
     get:
-      security:
-        - ApiKeyAuth: []
       tags:
         - Package
       summary: List all packages
@@ -566,8 +547,6 @@ paths:
 
   /api/packages/{id}:
     get:
-      security:
-        - ApiKeyAuth: []
       tags:
         - Package
       summary: Get package details
@@ -618,8 +597,6 @@ paths:
 
   /api/countries/packages:
     get:
-      security:
-        - ApiKeyAuth: []
       tags:
         - Package
       summary: Get all packages grouped by country
@@ -646,8 +623,6 @@ paths:
 
   /api/countries/{country}/packages:
     get:
-      security:
-        - ApiKeyAuth: []
       tags:
         - Package
       summary: Get packages for specific country
@@ -689,8 +664,6 @@ paths:
 
   /api/countries:
     get:
-      security:
-        - ApiKeyAuth: []
       tags:
         - Country
       summary: List all countries
@@ -729,12 +702,6 @@ paths:
 
 
 components:
-  securitySchemes:
-    ApiKeyAuth:
-      type: apiKey
-      in: header
-      name: Authorization
-      description: Fixed API token for authentication. Be sure to include the word `Bearer` followed by a space and the token.
   schemas:
     BookingRequest:
       type: object
@@ -886,8 +853,8 @@ components:
         esims:
           type: array
           items:
-            type: object
-          description: List of eSIMs associated with the booking
+            type: string
+          description: List of eSIM IDs associated with the booking.
         locale:
           type: string
           description: Locale of the booking
@@ -1257,21 +1224,20 @@ components:
     PaginationMeta:
       type: object
       properties:
-        currentPage:
-          type: integer
-          description: Current page number
-        totalPages:
-          type: integer
-          description: Total number of pages available
         perPage:
           type: integer
-          description: Number of items per page
-        totalItems:
-          type: integer
-          description: Total number of items in the collection
+          description: Number of items per page (minimum 1)
         hasNextPage:
           type: boolean
-          description: Indicates if there is a next page
+          description: Indicates if there are more items after this page
         hasPrevPage:
           type: boolean
-          description: Indicates if there is a previous page
+          description: Indicates if there are items before this page
+        nextCursor:
+          type: string
+          nullable: true
+          description: Cursor to get the next page of results
+        prevCursor:
+          type: string
+          nullable: true
+          description: Cursor to get the previous page of results
