@@ -514,6 +514,20 @@ paths:
         - Package
       summary: List all packages
       description: Retrieves a list of all available packages
+      parameters:
+        - name: perPage
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+          description: Number of records to return per page (minimum 1)
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Cursor for pagination (use nextCursor/prevCursor from previous response)
       responses:
         "200":
           description: Successful response
