@@ -24,6 +24,54 @@ info:
     
     Note: Swagger UI cannot be used to test the API directly as each request requires a unique HMAC signature.
     Please implement the authentication in your client application.
+
+    Example Node.js Implementation:
+    ```javascript
+    const cryptoJs = require('crypto-js');
+
+    // Configuration values that would normally come from environment
+    const secretKey = "YOUR_API_SECRET";
+    const publicKey = "YOUR_API_KEY";
+    const baseUrl = "YOUR_BASE_URL";
+
+    // Function to generate headers for API request
+    function generateApiHeaders(method, path) {
+        //Timestamp is in milliseconds e.g. 1715558400000
+        const timestamp = Math.floor(Date.now()).toString();
+
+        // Ensure url is a string
+        let path = String(url);
+
+        // Remove baseUrl from the url if present
+        path = processedUrl.replace(baseUrl, '');
+
+        // Create query string if needed
+        const queryString = new URL(url).search;
+        if (queryString) {
+            processedUrl += queryString;
+        }
+
+        // Validate public key
+        if (!publicKey) {
+            throw new Error("Public key is required");
+        }
+
+        // Create the payload
+        // Sample payload: 1715558400000GET/api/bookings?bookingId=1234567890
+        const payload = timestamp + method + path;
+
+        // Generate the HMAC signature
+        const signature = cryptoJs.HmacSHA256(payload, secretKey).toString(cryptoJs.enc.Hex);
+
+        // Return headers object
+        return {
+            'x-timestamp': timestamp,
+            'x-signature': signature,
+            'x-api-key': publicKey,
+            'Accept': 'application/json'
+        };
+    }
+    ```
     
     Need Help?
     - Technical Support: support@hubbyesim.com
