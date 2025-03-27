@@ -10,6 +10,69 @@ info:
     - Access our global package catalog with country-specific offerings
     - Track booking statuses and package activations
     
+    Authentication:
+    All API requests must include the following headers:
+    - x-api-key: Your public API key
+    - x-timestamp: Current Unix timestamp in seconds
+    - x-signature: HMAC-SHA256 signature
+    
+    The HMAC signature must be generated for each request using:
+    1. Concatenate: timestamp + HTTP method + request path
+       Example: "1678901234GET/api/bookings"
+    2. Generate HMAC-SHA256 using your secret key
+    3. Convert to hex string
+    
+    Note: Swagger UI cannot be used to test the API directly as each request requires a unique HMAC signature.
+    Please implement the authentication in your client application.
+
+    Example Node.js Implementation:
+    ```javascript
+    const cryptoJs = require('crypto-js');
+
+    // Configuration values that would normally come from environment
+    const secretKey = "YOUR_API_SECRET";
+    const publicKey = "YOUR_API_KEY";
+    const baseUrl = "YOUR_BASE_URL";
+
+    // Function to generate headers for API request
+    function generateApiHeaders(method, path) {
+        //Timestamp is in milliseconds e.g. 1715558400000
+        const timestamp = Math.floor(Date.now()).toString();
+
+        // Ensure url is a string
+        let path = String(url);
+
+        // Remove baseUrl from the url if present
+        path = processedUrl.replace(baseUrl, '');
+
+        // Create query string if needed
+        const queryString = new URL(url).search;
+        if (queryString) {
+            processedUrl += queryString;
+        }
+
+        // Validate public key
+        if (!publicKey) {
+            throw new Error("Public key is required");
+        }
+
+        // Create the payload
+        // Sample payload: 1715558400000GET/api/bookings?bookingId=1234567890
+        const payload = timestamp + method + path;
+
+        // Generate the HMAC signature
+        const signature = cryptoJs.HmacSHA256(payload, secretKey).toString(cryptoJs.enc.Hex);
+
+        // Return headers object
+        return {
+            'x-timestamp': timestamp,
+            'x-signature': signature,
+            'x-api-key': publicKey,
+            'Accept': 'application/json'
+        };
+    }
+    ```
+    
     Need Help?
     - Technical Support: support@hubbyesim.com
 
@@ -64,7 +127,7 @@ paths:
                   pagination:
                     $ref: "#/components/schemas/PaginationMeta"
         "401":
-          description: Unauthorized
+          description: Unauthorized access
           content:
             application/json:
               schema:
@@ -1197,6 +1260,23 @@ components:
               description: Optional additional error details
     UnauthorizedErrorResponse:
       type: object
+      description: |
+        Authentication failed with specific messages:
+        - "Missing required HMAC authentication headers" - When x-api-key, x-timestamp, or x-signature are missing
+        - "Request timestamp expired" - When timestamp is more than 400 minutes old or in future
+        - "Invalid signature" - When HMAC signature verification fails
+
+        HMAC Signature Generation:
+        1. Create message string by concatenating:
+           `${timestamp}${method}/api${path}?${queryString}`
+           Example: "1678901234GET/api/bookings?perPage=10"
+        2. Generate HMAC-SHA256 using your API secret
+        3. Convert to hex string
+
+        Notes:
+        - Timestamp must be within 400 minutes of current time
+        - API keys expire after 1 year
+        - Query parameters must be included in signature if present
       properties:
         success:
           type: boolean
