@@ -773,6 +773,136 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ServerErrorResponse"
+  /api/promoCodes/redeem:
+    post:
+      tags:
+        - PromoCode
+      summary: Redeem a promo code for booking
+      description: |
+        Redeems a promo code associated with a booking, provided it meets the necessary conditions.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - promo_code
+              properties:
+                promo_code:
+                  type: string
+                  description: The promo code to redeem
+      responses:
+        "200":
+          description: Promo code successfully redeemed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Promo code applied successfully
+                  data:
+                    type: object
+                    properties:
+                      iccid:
+                        type: string
+                        description: ICCID of the applied eSIM
+                      qr:
+                        type: string
+                        description: QR code for eSIM activation
+        "400":
+          description: Bad request due to invalid promo code or missing user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "404":
+          description: Promo code not found or not valid for booking
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundErrorResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerErrorResponse"
+  /api/esims/topUp:
+    post:
+      tags:
+        - eSIM
+      summary: Top-up an eSIM with a new package
+      description: |
+        This endpoint allows you to top-up an eSIM with a specified package using its ICCID.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - packageId
+                - iccid
+                - isAndroid
+              properties:
+                packageId:
+                  type: string
+                  description: The package ID for the eSIM top-up
+                iccid:
+                  type: string
+                  description: The ICCID of the eSIM to be topped up
+                isAndroid:
+                  type: boolean
+                  description: Indicates whether the user is using an Android device
+      responses:
+        "200":
+          description: eSIM top-up successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: eSIM top-up successful
+                  data:
+                    type: object
+                    properties:
+                      iccid:
+                        type: string
+                        description: ICCID of the topped-up eSIM
+                      qr:
+                        type: string
+                        description: QR code for reactivation of eSIM
+        "400":
+          description: Bad request due to invalid package ID or ICCID
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+        "404":
+          description: eSIM or package not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundErrorResponse"
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerErrorResponse"
+
+
 
 
 
